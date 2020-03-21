@@ -1,0 +1,1 @@
+cod-warzone-auto-spectator
