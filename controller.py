@@ -115,6 +115,10 @@ def find_window_by_title(search_title: str) -> dict:
     return found_window
 
 
+def close_window(handle) -> None:
+    win32gui.PostMessage(handle, win32con.WM_CLOSE, 0, 0)
+
+
 # Check if a process with the given PID is running/responding
 def is_responding_pid(pid: int) -> bool:
     """Check if a program (based on its PID) is responding"""
@@ -144,12 +148,12 @@ def ocr_screenshot_region(x: int, y: int, w: int, h: int, invert: bool = False, 
 
 
 # Check if an error message is present in the game
-def error_message_present(top: int, left: int) -> bool:
+def in_game_error_message_present(top: int, left: int) -> bool:
     return 'error' in ocr_screenshot_region(
         top + 622,
-        left + 347,
+        left + 330,
         55,
-        15,
+        34,
         True,
         False,
         r'--oem 3 --psm 8'
@@ -157,16 +161,145 @@ def error_message_present(top: int, left: int) -> bool:
 
 
 # Close an error message in the game
-def close_error_message(top: int, left: int) -> None:
+def close_in_game_error_message(top: int, left: int) -> None:
     mouse_move(top + 648, left + 400)
     mouse_left_click()
+
+
+def blizzard_error_message_present(top: int, left: int) -> bool:
+    return 'server disconnected' in ocr_screenshot_region(
+        top + 233,
+        left + 258,
+        365,
+        30,
+        True
+    )
+
+
+def launch_game_instance(install_path: str) -> bool:
+    # Use launcher to open game in client
+    print_log('Running launcher')
+    subprocess.run(os.path.join(install_path, 'Modern Warfare Launcher.exe'))
+    print_log('Waiting for client window')
+    time.sleep(10)
+
+    # Get a handle for the client window
+    print_log('Getting client window details')
+    client_window = find_window_by_title('Blizzard Battle.net')
+
+    try:
+        print_log('Bringing client window to foreground')
+        win32gui.ShowWindow(client_window['handle'], win32con.SW_SHOW)
+        win32gui.SetForegroundWindow(client_window['handle'])
+        time.sleep(1)
+    except Exception as e:
+        print_log(str(e))
+        print_log('Error in handling client window')
+        return False
+
+    # Look for client's "Games"-tab
+    print_log('Waiting for client to finish startup')
+    attempts = 0
+    max_attempts = 30
+    games_tab_present = False
+    while not games_tab_present and attempts < max_attempts:
+        games_tab_present = 'games' in ocr_screenshot_region(
+            client_window['rect'][0] + 137,
+            client_window['rect'][1] + 40,
+            80,
+            22,
+            True
+        )
+        attempts += 1
+        time.sleep(2)
+
+    if not games_tab_present:
+        print_log('Looks like client did not start correctly')
+        return False
+
+    # >>Click<< "Play"-button by hitting enter
+    print_log('Hitting enter to trigger "Play"-button')
+    auto_press_key(0x1c)
+    print_log('Waiting for game window')
+    time.sleep(20)
+
+    # Get a handle for the game window
+    print_log('Getting game window details')
+    game_window = find_window_by_title('Call of Duty®: Modern Warfare®')
+
+    # Bring game window to foreground and scale it to 720p
+    try:
+        print_log('Bringing game window to foreground')
+        win32gui.ShowWindow(game_window['handle'], win32con.SW_SHOW)
+        win32gui.SetForegroundWindow(game_window['handle'])
+        print_log('Scaling game window to 1280x720')
+        win32gui.MoveWindow(game_window['handle'], 0, 10, 1296, 759, True)
+        time.sleep(1)
+    except Exception as e:
+        print_log(str(e))
+        print_log('Error in handling game window')
+        return False
+
+    # Update game window rect
+    game_window['rect'] = win32gui.GetWindowRect(game_window['handle'])
+
+    # Wait until game has fully started
+    print_log('Waiting for game to finish startup')
+    attempts = 0
+    max_attempts = 30
+    game_title_present = False
+    while not game_title_present and attempts < max_attempts:
+        ocr_result = ocr_screenshot_region(
+            game_window['rect'][0] + 420,
+            game_window['rect'][1] + 102,
+            455,
+            106,
+            True,
+            False,
+            r'--oem 3 --psm 8'
+        )
+        game_title_present = 'war' in ocr_result and 'zone' in ocr_result
+        attempts += 1
+        time.sleep(2)
+
+    if not game_title_present:
+        print_log('Looks like game did not start correctly')
+        return False
+
+    # Hit space once to close promotional message
+    print_log('Hitting space to close promo message')
+    auto_press_key(0x39)
+    time.sleep(2)
+
+    # Move cursor over left selection (Modern Warfare)
+    mouse_move(game_window['rect'][0] + 64, game_window['rect'][1] + 360)
+    time.sleep(1)
+
+    # Move cursor over Warzone
+    mouse_move(game_window['rect'][0] + 870, game_window['rect'][1] + 360)
+    time.sleep(1)
+
+    # Hit space again to choose Warzone
+    print_log('Hitting space to select Warzone')
+    auto_press_key(0x39)
+    time.sleep(3)
+
+    return 'warzone' in ocr_screenshot_region(
+        game_window['rect'][0] + 64,
+        game_window['rect'][1] + 64,
+        160,
+        30,
+        True,
+    )
 
 
 # Set up argument parsing and parse
 parser = argparse.ArgumentParser(description='Control a Call of Duty®: Modern Warfare®'
                                              'game instance to spectate players playing Warzone')
+parser.add_argument('--game-path', help='Path to game install folder',
+                    type=str, default=r'C:\Program Files (x86)\Call of Duty Modern Warfare')
 parser.add_argument('--tesseract-path', help='Path to Tesseract install folder',
-                    type=str, default='C:\\Program Files\\Tesseract-OCR\\')
+                    type=str, default=r'C:\Program Files\Tesseract-OCR')
 args = parser.parse_args()
 
 # Init global vars/settings
@@ -175,44 +308,74 @@ top_windows = []
 
 # Make sure provided Tesseract path is valid
 if not os.path.isfile(pytesseract.pytesseract.tesseract_cmd):
-    sys.exit(f'Could not find tesseract.exe in given install folder: {pytesseract.pytesseract.tesseract_cmd}')
-
-# Init game instance
-# TODO
+    sys.exit(f'Could not find tesseract.exe in given install folder: {args.tesseract_path}')
+elif not os.path.isfile(os.path.join(args.game_path, 'Modern Warfare Launcher.exe')):
+    sys.exit(f'Could not find Modern Warfare Launcher.exe in given game install folder: {args.game_path}')
 
 # Find game window
 print_log('Finding Warzone window')
 gameWindow = find_window_by_title('Call of Duty®: Modern Warfare®')
 print_log(f'Found window: {gameWindow}')
 
-# Make sure a game window was found
+# If no game window was found, start a new game instance
 if gameWindow is None:
-    sys.exit('No game window found, please start an instance of the game first')
+    print_log('No game window found, starting a new game instance')
+    gameLaunched = launch_game_instance(args.game_path)
 
-# Bring game window to foreground and scale it to 720p
-try:
-    win32gui.ShowWindow(gameWindow['handle'], win32con.SW_SHOW)
-    win32gui.SetForegroundWindow(gameWindow['handle'])
-    win32gui.MoveWindow(gameWindow['handle'], 50, 50, 1296, 759, True)
-    time.sleep(1)
-except Exception as e:
-    print_log(str(e))
-    sys.exit('Error in handling game window, exiting')
+    print_log(f'gameLaunched: {gameLaunched}')
+
+    if gameLaunched:
+        gameWindow = find_window_by_title('Call of Duty®: Modern Warfare®')
+
+# Make sure we now have a game window
+if gameWindow is None:
+    sys.exit("Failed to find/start game instance")
 
 # Spectate indefinitely
+restartRequired = False
 while True:
+    if restartRequired:
+        # If window still exists but is showing error message, close it
+        try:
+            # Close existing game instance
+            print_log('Closing existing game instance')
+            close_window(gameWindow)
+            time.sleep(10)
+        except Exception as e:
+            print_log('Failed to close game, restarting anyways')
+
+        # Start new game instance
+        print_log('Starting new game instance')
+        gameLaunched = launch_game_instance(args.game_path)
+        print_log(f'gameLaunched: {gameLaunched}')
+
+        if gameLaunched:
+            print_log('Updating window details')
+            gameWindow = find_window_by_title('Call of Duty®: Modern Warfare®')
+            restartRequired = False
+        else:
+            print_log('Failed to restart game, trying again in 60s')
+            time.sleep(60)
+            continue
+
     try:
         win32gui.ShowWindow(gameWindow['handle'], win32con.SW_SHOW)
         win32gui.SetForegroundWindow(gameWindow['handle'])
         time.sleep(1)
     except Exception as e:
         print_log(str(e))
-        sys.exit('Error in handling game window, exiting')
+        print_log('Error in handling game window, restarting game')
+        restartRequired = True
+        continue
 
     # Initial check for error message
-    if error_message_present(gameWindow['rect'][0], gameWindow['rect'][1]):
-        print_log('Error message is present, closing it and starting over')
-        close_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+    if in_game_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1]):
+        print_log('In game error message present, closing it and starting over')
+        close_in_game_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        continue
+    elif blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1]):
+        print_log('Blizzard error message present, restarting game')
+        restartRequired = True
         continue
 
     # Close initial pop up
@@ -234,12 +397,15 @@ while True:
         time.sleep(1)
     except Exception as e:
         print_log(str(e))
-        sys.exit('Error in handling game window, exiting')
+        print_log('Error in handling game window, restarting game')
+        restartRequired = True
+        continue
 
     # Wait for pre-game to start
     inPreGame = False
-    errorMessagePresent = False
-    while not inPreGame and not errorMessagePresent:
+    inGameErrorMessagePresent = False
+    blizzardErrorMessagePresent = False
+    while not inPreGame and not inGameErrorMessagePresent and not blizzardErrorMessagePresent:
         # Check if we are in pre-game already
         ocrResult = ocr_screenshot_region(
             gameWindow['rect'][0] + 525,
@@ -253,14 +419,21 @@ while True:
         print_log(f'inPreGame: {inPreGame}')
 
         # Check for any error messages
-        errorMessagePresent = error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        inGameErrorMessagePresent = in_game_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         time.sleep(8)
 
-    # If an error message is present, close it and start over
-    if errorMessagePresent:
+    # If an error game message is present, close it and start over
+    if inGameErrorMessagePresent:
         print_log('Error message is present, closing it and starting over')
-        close_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        close_in_game_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        continue
+
+    # If blizzard error message is present, close game and start a new instance
+    if blizzardErrorMessagePresent:
+        print_log('Blizzard error message present, restarting game')
+        restartRequired = True
         continue
 
     print_log('Entered pre-game without errors, awaiting game start')
@@ -279,7 +452,7 @@ while True:
 
     # Wait for jump button indicator to appear
     canJump = False
-    while not canJump and not errorMessagePresent:
+    while not canJump and not inGameErrorMessagePresent and not blizzardErrorMessagePresent:
         canJump = 'space' in ocr_screenshot_region(
             gameWindow['rect'][0] + 558,
             gameWindow['rect'][1] + 662,
@@ -292,14 +465,21 @@ while True:
         print_log(f'canJump: {canJump}')
 
         # Check for any error messages
-        errorMessagePresent = error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        inGameErrorMessagePresent = in_game_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         time.sleep(2)
 
     # If an error message is present, close it and start over
-    if errorMessagePresent:
+    if inGameErrorMessagePresent:
         print_log('Error message is present, closing it and starting over')
-        close_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        close_in_game_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        continue
+
+    # If blizzard error message is present, close game and start a new instance
+    if blizzardErrorMessagePresent:
+        print_log('Blizzard error message present, restarting game')
+        restartRequired = True
         continue
 
     time.sleep(1.5)
@@ -338,7 +518,7 @@ while True:
 
     # Look for "Spectate"-button
     spectateButtonPresent = False
-    while not spectateButtonPresent and not errorMessagePresent:
+    while not spectateButtonPresent and not inGameErrorMessagePresent and not blizzardErrorMessagePresent:
         spectateButtonPresent = 'spectate' in ocr_screenshot_region(
             gameWindow['rect'][0] + 994,
             gameWindow['rect'][1] + 392,
@@ -351,15 +531,22 @@ while True:
         print_log(f'spectateButtonPresent: {spectateButtonPresent}')
 
         # Check for any error messages
-        errorMessagePresent = error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        inGameErrorMessagePresent = in_game_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         if not spectateButtonPresent:
             time.sleep(4)
 
     # If an error message is present, close it and start over
-    if errorMessagePresent:
+    if inGameErrorMessagePresent:
         print_log('Error message is present, closing it and starting over')
-        close_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        close_in_game_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        continue
+
+    # If blizzard error message is present, close game and start a new instance
+    if blizzardErrorMessagePresent:
+        print_log('Blizzard error message present, restarting game')
+        restartRequired = True
         continue
 
     # Click spectate
@@ -379,7 +566,8 @@ while True:
     onInMemoriam = False
     leaveGameButtonPresent = False
     iterationsOnPlayer = 0
-    while not onInMemoriam and not leaveGameButtonPresent:
+    while not onInMemoriam and not leaveGameButtonPresent and \
+            not inGameErrorMessagePresent and not blizzardErrorMessagePresent:
         # Check if "In Memoriam" title is present
         onInMemoriam = 'in memo' in ocr_screenshot_region(
             gameWindow['rect'][0] + 134,
@@ -403,11 +591,13 @@ while True:
         print_log(f'onInMemoriam: {onInMemoriam}; leaveGameButtonPresent: {leaveGameButtonPresent}')
 
         # Check for any error messages
-        errorMessagePresent = error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        inGameErrorMessagePresent = in_game_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         # Switch to next player if current player has reached iteration limit
         # and game is not over
-        if iterationsOnPlayer >= 10 and not onInMemoriam and not leaveGameButtonPresent and not errorMessagePresent:
+        if iterationsOnPlayer >= 10 and not onInMemoriam and not leaveGameButtonPresent and \
+                not inGameErrorMessagePresent and not blizzardErrorMessagePresent:
             # Bring window back to front (to be sure, and to enable alt-tabbing between controller actions)
             try:
                 win32gui.ShowWindow(gameWindow['handle'], win32con.SW_SHOW)
@@ -423,17 +613,20 @@ while True:
 
             # Reset counter
             iterationsOnPlayer = 0
-        elif errorMessagePresent:
-            # An error message is present, break spectate loop and start over
-            break
 
         iterationsOnPlayer += 1
         time.sleep(2)
 
     # If an error message is present, close it and start over
-    if errorMessagePresent:
+    if inGameErrorMessagePresent:
         print_log('Error message is present, closing it and starting over')
-        close_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        close_in_game_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        continue
+
+    # If blizzard error message is present, close game and start a new instance
+    if blizzardErrorMessagePresent:
+        print_log('Blizzard error message present, restarting game')
+        restartRequired = True
         continue
 
     # Hit ESC
