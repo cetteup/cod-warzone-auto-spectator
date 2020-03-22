@@ -102,6 +102,9 @@ def mouse_left_click() -> None:
 
 # Find a window in the windows array by its title
 def find_window_by_title(search_title: str) -> dict:
+    # Reset top windows array
+    top_windows = []
+
     # Call window enumeration handler
     win32gui.EnumWindows(window_enumeration_handler, top_windows)
     found_window = None
