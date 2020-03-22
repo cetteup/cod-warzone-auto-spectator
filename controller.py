@@ -144,7 +144,7 @@ def ocr_screenshot_region(x: int, y: int, w: int, h: int, invert: bool = False, 
 def error_message_present(top: int, left: int) -> bool:
     return 'error' in ocr_screenshot_region(
         top + 622,
-        left + 340,
+        left + 347,
         55,
         15,
         True,
@@ -155,7 +155,7 @@ def error_message_present(top: int, left: int) -> bool:
 
 # Close an error message in the game
 def close_error_message(top: int, left: int) -> None:
-    mouse_move(top + 648, left + 410)
+    mouse_move(top + 648, left + 400)
     mouse_left_click()
 
 
@@ -205,6 +205,12 @@ while True:
     except Exception as e:
         print_log(str(e))
         sys.exit('Error in handling game window, exiting')
+
+    # Initial check for error message
+    if error_message_present(gameWindow['rect'][0], gameWindow['rect'][1]):
+        print_log('Error message is present, closing it and starting over')
+        close_error_message(gameWindow['rect'][0], gameWindow['rect'][1])
+        continue
 
     # Close initial pop up
     mouse_move(gameWindow['rect'][0] + 569, gameWindow['rect'][1] + 200)
