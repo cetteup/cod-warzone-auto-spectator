@@ -371,15 +371,6 @@ while True:
     leaveGameButtonPresent = False
     iterationsOnPlayer = 0
     while not onInMemoriam and not leaveGameButtonPresent:
-        # Bring window back to front (to be sure, and to enable alt-tabbing between controller actions)
-        try:
-            win32gui.ShowWindow(gameWindow['handle'], win32con.SW_SHOW)
-            win32gui.SetForegroundWindow(gameWindow['handle'])
-            time.sleep(1)
-        except Exception as e:
-            print_log(str(e))
-            sys.exit('Error in handling game window, exiting')
-
         # Check if "In Memoriam" title is present
         onInMemoriam = 'in memo' in ocr_screenshot_region(
             gameWindow['rect'][0] + 134,
@@ -408,6 +399,15 @@ while True:
         # Switch to next player if current player has reached iteration limit
         # and game is not over
         if iterationsOnPlayer >= 10 and not onInMemoriam and not leaveGameButtonPresent and not errorMessagePresent:
+            # Bring window back to front (to be sure, and to enable alt-tabbing between controller actions)
+            try:
+                win32gui.ShowWindow(gameWindow['handle'], win32con.SW_SHOW)
+                win32gui.SetForegroundWindow(gameWindow['handle'])
+                time.sleep(1)
+            except Exception as e:
+                print_log(str(e))
+                sys.exit('Error in handling game window, exiting')
+
             # Click to rotate
             print_log('Rotating')
             mouse_left_click()
