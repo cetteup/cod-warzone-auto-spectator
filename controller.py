@@ -339,7 +339,7 @@ while True:
         try:
             # Close existing game instance
             print_log('Closing existing game instance')
-            close_window(gameWindow)
+            close_window(gameWindow['handle'])
             time.sleep(10)
         except Exception as e:
             print_log('Failed to close game, restarting anyways')
