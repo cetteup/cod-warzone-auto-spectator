@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6d158187-6a34-45c6-9ba5-0ee0f83765c2" name="Default Changelist" comment="" />
+    <list default="true" id="6d158187-6a34-45c6-9ba5-0ee0f83765c2" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/cod-warzone-auto-spectator.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/cod-warzone-auto-spectator.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,6 +20,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1ZOwUmTPZtf1ffyhq5ouGoNn0Tg" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -22,6 +31,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -95,10 +105,11 @@
     </state>
     <state width="1042" height="265" key="GridCell.Tab.0.right/-1080.-294.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1584745536240" />
     <state width="1036" height="265" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1584820371694" />
-    <state x="871" y="190" key="SettingsEditor" timestamp="1584723527534">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="374" y="31" width="992" height="737" key="SettingsEditor" timestamp="1584871464708">
+      <screen x="0" y="27" width="1366" height="741" />
     </state>
     <state x="871" y="190" key="SettingsEditor/-1080.-294.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1584723527534" />
+    <state x="374" y="31" width="992" height="737" key="SettingsEditor/0.27.1366.741@0.27.1366.741" timestamp="1584871464708" />
     <state x="1063" y="372" key="com.intellij.ide.util.TipDialog" timestamp="1584789654825">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
