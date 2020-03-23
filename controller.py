@@ -149,7 +149,7 @@ def ocr_screenshot_region(x: int, y: int, w: int, h: int, invert: bool = False, 
 
 # Check if an error message is present in the game
 def in_game_error_message_present(top: int, left: int) -> bool:
-    return 'error' in ocr_screenshot_region(
+    ocr_result = ocr_screenshot_region(
         top + 622,
         left + 330,
         55,
@@ -158,6 +158,8 @@ def in_game_error_message_present(top: int, left: int) -> bool:
         False,
         r'--oem 3 --psm 8'
     )
+
+    return 'error' in ocr_result or 'notice' in ocr_result
 
 
 # Close an error message in the game
