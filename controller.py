@@ -377,13 +377,8 @@ while True:
         restartRequired = True
         continue
 
-    # Close initial pop up
-    mouse_move(gameWindow['rect'][0] + 569, gameWindow['rect'][1] + 200)
-    mouse_left_click()
-
-    time.sleep(1)
-
     # Click battle royal
+    print_log('Clicking "Battle Royale" option')
     mouse_move(gameWindow['rect'][0] + 233, gameWindow['rect'][1] + 342)
     mouse_left_click()
 
