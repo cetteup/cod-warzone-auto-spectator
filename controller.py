@@ -247,6 +247,9 @@ def launch_game_instance(install_path: str) -> bool:
     # Update game window rect
     game_window['rect'] = win32gui.GetWindowRect(game_window['handle'])
 
+    # Move cursor to center of game window to prepare Warzone selection
+    mouse_move(game_window['rect'][0] + 640, game_window['rect'][1] + 360)
+
     # Wait until game has fully started
     print_log('Waiting for game to finish startup')
     attempts = 0
@@ -274,14 +277,6 @@ def launch_game_instance(install_path: str) -> bool:
     print_log('Hitting space to close promo message')
     auto_press_key(0x39)
     time.sleep(2)
-
-    # Move cursor over left selection (Modern Warfare)
-    mouse_move(game_window['rect'][0] + 64, game_window['rect'][1] + 360)
-    time.sleep(1)
-
-    # Move cursor over Warzone
-    mouse_move(game_window['rect'][0] + 870, game_window['rect'][1] + 360)
-    time.sleep(1)
 
     # Hit space again to choose Warzone
     print_log('Hitting space to select Warzone')
