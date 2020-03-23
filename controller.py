@@ -167,13 +167,15 @@ def close_in_game_error_message(top: int, left: int) -> None:
 
 
 def blizzard_error_message_present(top: int, left: int) -> bool:
-    return 'server disconnected' in ocr_screenshot_region(
+    ocr_result = ocr_screenshot_region(
         top + 233,
         left + 258,
         365,
         30,
         True
     )
+
+    return 'server disconnected' in ocr_result or 'connection failed' in ocr_result
 
 
 def launch_game_instance(install_path: str) -> bool:
