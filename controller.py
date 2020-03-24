@@ -156,7 +156,7 @@ def in_game_error_message_present(top: int, left: int) -> bool:
         34,
         True,
         False,
-        r'--oem 3 --psm 8'
+        r'--oem 3 --psm 7'
     )
 
     return 'error' in ocr_result or 'notice' in ocr_result
@@ -281,7 +281,7 @@ def launch_game_instance(install_path: str) -> bool:
     # Hit space again to choose Warzone
     print_log('Hitting space to select Warzone')
     auto_press_key(0x39)
-    time.sleep(3)
+    time.sleep(5)
 
     return 'warzone' in ocr_screenshot_region(
         game_window['rect'][0] + 64,
@@ -378,7 +378,7 @@ while True:
         continue
 
     # Click battle royal
-    print_log('Clicking "Battle Royale" option')
+    print_log('Clicking "Battle Royale"-option')
     mouse_move(gameWindow['rect'][0] + 233, gameWindow['rect'][1] + 342)
     mouse_left_click()
 
@@ -480,10 +480,10 @@ while True:
     print_log('Game started, jumping')
 
     auto_press_key(0x39)
-    time.sleep(4)
+    time.sleep(5)
     print_log('Deploying parachute')
     auto_press_key(0x39)
-    time.sleep(3)
+    time.sleep(4)
     print_log('Cutting parachute')
     auto_press_key(0x2e)
     time.sleep(2)
