@@ -623,19 +623,19 @@ while True:
         restartRequired = True
         continue
 
-    # Hit ESC
-    print_log('Game over, hitting ESC')
-    auto_press_key(0x01)
-    time.sleep(1)
+        # Hit ESC
+        print_log('Game over, hitting ESC')
+        auto_press_key(0x01)
+        time.sleep(1)
 
-    # Click "Leave game"-button
-    print_log('Clicking "Leave game"-button')
-    mouse_move(gameWindow['rect'][0] + 150, gameWindow['rect'][1] + 286)
-    mouse_left_click()
-    time.sleep(1)
+        # Click "Leave game"-button
+        print_log('Clicking "Leave game"-button')
+        mouse_move(gameWindow['rect'][0] + 150, gameWindow['rect'][1] + 286)
+        mouse_left_click()
+        time.sleep(1)
 
-    # Confirm
-    print_log('Confirming "Leave game"-dialogue')
-    mouse_move(gameWindow['rect'][0] + 643, gameWindow['rect'][1] + 386)
-    mouse_left_click()
-    time.sleep(5)
+        # Confirm
+        print_log('Confirming "Leave game"-dialogue')
+        mouse_move(gameWindow['rect'][0] + 643, gameWindow['rect'][1] + 386)
+        mouse_left_click()
+        time.sleep(5)
