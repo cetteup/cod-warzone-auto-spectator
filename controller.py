@@ -518,7 +518,7 @@ while True:
         restartRequired = True
         continue
 
-    time.sleep(1.5)
+    time.sleep(5)
     print_log('Game started, jumping')
 
     auto_press_key(0x39)
