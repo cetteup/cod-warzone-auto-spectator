@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6d158187-6a34-45c6-9ba5-0ee0f83765c2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/cod-warzone-auto-spectator.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/cod-warzone-auto-spectator.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +28,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../bf2-auto-spectator" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
@@ -84,7 +81,15 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="824" y="203" key="#com.intellij.execution.impl.EditConfigurationsDialog/-1080.-294.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1584730299614" />
+<<<<<<< Updated upstream
     <state width="1362" height="262" key="GridCell.Tab.0.bottom" timestamp="1585077505436">
+=======
+    <state x="466" y="155" width="424" height="491" key="FileChooserDialogImpl" timestamp="1584982484215">
+      <screen x="0" y="27" width="1366" height="741" />
+    </state>
+    <state x="466" y="155" width="424" height="491" key="FileChooserDialogImpl/0.27.1366.741@0.27.1366.741" timestamp="1584982484215" />
+    <state width="1362" height="262" key="GridCell.Tab.0.bottom" timestamp="1584981533898">
+>>>>>>> Stashed changes
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1042" height="265" key="GridCell.Tab.0.bottom/-1080.-294.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1584745536240" />
