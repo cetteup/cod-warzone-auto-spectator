@@ -333,6 +333,14 @@ if gameWindow is None:
 
     if gameLaunched:
         gameWindow = find_window_by_title('Call of Duty®: Modern Warfare®')
+else:
+    try:
+        print_log('Scaling game window to 1280x720')
+        win32gui.MoveWindow(gameWindow['handle'], 0, 10, 1296, 759, True)
+        time.sleep(1)
+    except Exception as e:
+        print_log(str(e))
+        print_log('Error in handling game window')
 
 # Make sure we now have a game window
 if gameWindow is None:
