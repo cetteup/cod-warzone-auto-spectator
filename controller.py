@@ -245,7 +245,7 @@ def launch_game_instance(install_path: str) -> bool:
         win32gui.ShowWindow(game_window['handle'], win32con.SW_SHOW)
         win32gui.SetForegroundWindow(game_window['handle'])
         print_log('Scaling game window to 1280x720')
-        win32gui.MoveWindow(game_window['handle'], 0, 10, 1296, 759, True)
+        win32gui.MoveWindow(game_window['handle'], 10, 30, 1296, 759, True)
         time.sleep(1)
     except Exception as e:
         print_log(str(e))
@@ -333,14 +333,6 @@ if gameWindow is None:
 
     if gameLaunched:
         gameWindow = find_window_by_title('Call of Duty®: Modern Warfare®')
-else:
-    try:
-        print_log('Scaling game window to 1280x720')
-        win32gui.MoveWindow(gameWindow['handle'], 0, 10, 1296, 759, True)
-        time.sleep(1)
-    except Exception as e:
-        print_log(str(e))
-        print_log('Error in handling game window')
 
 # Make sure we now have a game window
 if gameWindow is None:
@@ -380,6 +372,16 @@ while True:
     except Exception as e:
         print_log(str(e))
         print_log('Error in handling game window, restarting game')
+        restartRequired = True
+        continue
+
+    try:
+        print_log('Scaling game window to 1280x720')
+        win32gui.MoveWindow(gameWindow['handle'], 10, 30, 1296, 759, True)
+        time.sleep(1)
+    except Exception as e:
+        print_log(str(e))
+        print_log('Error in handling game window')
         restartRequired = True
         continue
 
