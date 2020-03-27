@@ -624,9 +624,9 @@ while True:
             not windowError and blankScreenCounter < blankScreenLimit:
         # Check if "In Memoriam" title is present
         onInMemoriam = 'in memo' in ocr_screenshot_region(
-            gameWindow['rect'][0] + 134,
+            gameWindow['rect'][0] + 138,
             gameWindow['rect'][1] + 120,
-            102,
+            98,
             14,
             False,
             False
