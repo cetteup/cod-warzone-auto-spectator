@@ -486,7 +486,7 @@ while True:
             not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
         canJump = 'space' in ocr_screenshot_region(
             gameWindow['rect'][0] + 558,
-            gameWindow['rect'][1] + 662,
+            gameWindow['rect'][1] + 624,
             40,
             15,
             False,
