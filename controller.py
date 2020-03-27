@@ -617,9 +617,11 @@ while True:
 
     onInMemoriam = False
     leaveGameButtonPresent = False
+    windowError = False
     iterationsOnPlayer = 0
     while not onInMemoriam and not leaveGameButtonPresent and \
-            not inGameErrorMessagePresent and not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
+            not inGameErrorMessagePresent and not blizzardErrorMessagePresent and \
+            not windowError and blankScreenCounter < blankScreenLimit:
         # Check if "In Memoriam" title is present
         onInMemoriam = 'in memo' in ocr_screenshot_region(
             gameWindow['rect'][0] + 134,
@@ -661,8 +663,7 @@ while True:
                 time.sleep(1)
             except Exception as e:
                 print_log(str(e))
-                print_log('Error in handling game window, restarting game')
-                restartRequired = True
+                windowError = True
                 continue
 
             # Click to rotate
@@ -684,6 +685,12 @@ while True:
     # If blizzard error message is present, close game and start a new instance
     if blizzardErrorMessagePresent:
         print_log('Blizzard error message present, restarting game')
+        restartRequired = True
+        continue
+
+    # If there was an error handling the game window, close game an start a new instance
+    if windowError:
+        print_log('Error in handling game window, restarting game')
         restartRequired = True
         continue
 
