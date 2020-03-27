@@ -474,7 +474,9 @@ while True:
         time.sleep(1)
     except Exception as e:
         print_log(str(e))
-        sys.exit('Error in handling game window, exiting')
+        print_log('Error in handling game window, exiting')
+        restartRequired = True
+        continue
 
     print_log('Game should start any second, starting ocr attempts')
 
@@ -552,7 +554,9 @@ while True:
         time.sleep(1)
     except Exception as e:
         print_log(str(e))
-        sys.exit('Error in handling game window, exiting')
+        print_log('Error in handling game window, restarting game')
+        restartRequired = True
+        continue
 
     # Look for "Spectate"-button
     spectateButtonPresent = False
@@ -657,7 +661,9 @@ while True:
                 time.sleep(1)
             except Exception as e:
                 print_log(str(e))
-                sys.exit('Error in handling game window, exiting')
+                print_log('Error in handling game window, restarting game')
+                restartRequired = True
+                continue
 
             # Click to rotate
             print_log('Rotating')
