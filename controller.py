@@ -467,7 +467,7 @@ while True:
         continue
 
     print_log('Entered pre-game without errors, awaiting game start')
-    time.sleep(70)
+    time.sleep(30)
 
     # Bring window back to front (to be sure, and to enable alt-tabbing between controller actions)
     try:
@@ -480,7 +480,7 @@ while True:
         restartRequired = True
         continue
 
-    print_log('Game should start any second, starting ocr attempts')
+    print_log('Game could start any second, starting ocr attempts')
 
     # Wait for jump button indicator to appear
     canJump = False
