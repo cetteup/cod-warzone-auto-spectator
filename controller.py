@@ -603,10 +603,30 @@ while True:
         restartRequired = True
         continue
 
-    # Click spectate
-    print_log('Clicking "Spectate"-button')
-    mouse_move(gameWindow['rect'][0] + 1043, gameWindow['rect'][1] + 402)
-    mouse_left_click()
+    # (Attempt to) Click spectate until the button is gone
+    while spectateButtonPresent and not inGameErrorMessagePresent and \
+            not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
+        print_log('Clicking "Spectate"-button')
+        mouse_move(gameWindow['rect'][0] + 1043, gameWindow['rect'][1] + 402)
+        mouse_left_click()
+
+        spectateButtonPresent = 'spectate' in ocr_screenshot_region(
+            gameWindow['rect'][0] + 994,
+            gameWindow['rect'][1] + 392,
+            60,
+            16,
+            True,
+            False,
+            r'--oem 3 --psm 8'
+        )
+        print_log(f'spectateButtonPresent: {spectateButtonPresent}')
+
+        # Check for any error messages
+        inGameErrorMessagePresent = in_game_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+        blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
+
+        if blank_screen_present(gameWindow['rect'][0], gameWindow['rect'][1]):
+            blankScreenCounter += 1
 
     # Toggle through players while game is running
     print_log('Entering player spectate rotation')
