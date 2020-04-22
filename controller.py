@@ -303,6 +303,7 @@ def launch_game_instance(install_path: str) -> bool:
 # Set up argument parsing and parse
 parser = argparse.ArgumentParser(description='Control a Call of Duty®: Modern Warfare®'
                                              'game instance to spectate players playing Warzone')
+parser.add_argument('--version', action='version', version='cod-warzone-auto-spectator v0.1.6')
 parser.add_argument('--game-path', help='Path to game install folder',
                     type=str, default=r'C:\Program Files (x86)\Call of Duty Modern Warfare')
 parser.add_argument('--tesseract-path', help='Path to Tesseract install folder',
