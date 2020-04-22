@@ -88,8 +88,8 @@ def print_log(message: object) -> None:
 
 
 # Move mouse cursor to provided x and y coordinates
-def mouse_move(x: int, y: int) -> None:
-    ctypes.windll.user32.SetCursorPos(x, y)
+def mouse_move(left: int, top: int) -> None:
+    ctypes.windll.user32.SetCursorPos(left, top)
     time.sleep(.2)
 
 
@@ -135,9 +135,9 @@ def taskkill_pid(pid: int) -> bool:
 
 
 # Take a screenshot of the given region and run the result through OCR
-def ocr_screenshot_region(x: int, y: int, w: int, h: int, invert: bool = False, show: bool = False,
+def ocr_screenshot_region(left: int, top: int, width: int, height: int, invert: bool = False, show: bool = False,
                           config: str = r'--oem 3 --psm 7') -> str:
-    screenshot = pyautogui.screenshot(region=(x, y, w, h))
+    screenshot = pyautogui.screenshot(region=(left, top, width, height))
     if invert:
         screenshot = ImageOps.invert(screenshot)
     if show:
@@ -163,15 +163,15 @@ def in_game_error_message_present(left: int, top: int) -> bool:
 
 
 # Close an error message in the game
-def close_in_game_error_message(top: int, left: int) -> None:
-    mouse_move(top + 648, left + 400)
+def close_in_game_error_message(left: int, top: int) -> None:
+    mouse_move(left + 648, top + 400)
     mouse_left_click()
 
 
-def blizzard_error_message_present(top: int, left: int) -> bool:
+def blizzard_error_message_present(left: int, top: int) -> bool:
     ocr_result = ocr_screenshot_region(
-        top + 233,
-        left + 258,
+        left + 233,
+        top + 258,
         365,
         30,
         True
@@ -180,7 +180,7 @@ def blizzard_error_message_present(top: int, left: int) -> bool:
     return 'server disconnected' in ocr_result or 'connection failed' in ocr_result
 
 
-def blank_screen_present(top: int, left: int) -> bool:
+def blank_screen_present(left: int, top: int) -> bool:
     screenshot = pyautogui.screenshot(region=(left + 30, top + 50, 50, 50))
     colors = screenshot.getcolors()
 
