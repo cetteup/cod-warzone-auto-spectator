@@ -430,7 +430,8 @@ while True:
             gameWindow['rect'][0] + 525,
             gameWindow['rect'][1] + 106,
             250,
-            18
+            18,
+            True
         )
 
         inPreGame = 'waiting' in ocrResult and 'lobby' in ocrResult or \
