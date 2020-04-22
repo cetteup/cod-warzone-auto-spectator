@@ -30,5 +30,6 @@ If you want to stop the spectator, hit CTRL + C at any time.
 
 ## Known limitations
 - cod-warzone-auto-spectator currently only supports running the game in 720p
+- Windows display scaling has to be set to 100%
 - player spectate rotation is limited to the current squad
 - current/next squad to watch is chosen by the game, whichever squad eliminates the current squad will be the next squad to spectate (starting with the squad of the spectator)
