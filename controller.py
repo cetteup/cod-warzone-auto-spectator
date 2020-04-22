@@ -434,7 +434,8 @@ while True:
         )
 
         inPreGame = 'waiting' in ocrResult and 'lobby' in ocrResult or \
-                    'match' in ocrResult and 'full' in ocrResult
+                    'match' in ocrResult and 'full' in ocrResult or \
+                    'deployment' in ocrResult and 'begin' in ocrResult
         print_log(f'inPreGame: {inPreGame}')
 
         # Check for any error messages
