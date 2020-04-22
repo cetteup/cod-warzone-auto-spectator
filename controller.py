@@ -401,7 +401,7 @@ while True:
 
     # Click battle royal
     print_log('Clicking "Battle Royale"-option')
-    mouse_move(gameWindow['rect'][0] + 233, gameWindow['rect'][1] + 342)
+    mouse_move(gameWindow['rect'][0] + 233, gameWindow['rect'][1] + 210)
     mouse_left_click()
 
     time.sleep(30)
