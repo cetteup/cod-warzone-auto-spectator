@@ -739,3 +739,15 @@ while True:
         mouse_move(gameWindow['rect'][0] + 643, gameWindow['rect'][1] + 386)
         mouse_left_click()
         time.sleep(5)
+    elif leaveGameButtonPresent:
+        # Click "Leave game"-button
+        print_log('Clicking "Leave game"-button')
+        mouse_move(gameWindow['rect'][0] + 1043, gameWindow['rect'][1] + 402)
+        mouse_left_click()
+        time.sleep(1)
+
+        # Confirm
+        print_log('Confirming "Leave game"-dialogue')
+        mouse_move(gameWindow['rect'][0] + 643, gameWindow['rect'][1] + 386)
+        mouse_left_click()
+        time.sleep(5)
