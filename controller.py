@@ -148,11 +148,11 @@ def ocr_screenshot_region(x: int, y: int, w: int, h: int, invert: bool = False, 
 
 
 # Check if an error message is present in the game
-def in_game_error_message_present(top: int, left: int) -> bool:
+def in_game_error_message_present(left: int, top: int) -> bool:
     ocr_result = ocr_screenshot_region(
-        top + 622,
-        left + 330,
-        55,
+        left + 590,
+        top + 330,
+        115,
         34,
         True,
         False,
