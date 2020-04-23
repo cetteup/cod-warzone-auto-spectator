@@ -485,6 +485,7 @@ while True:
 
     # Wait for jump button indicator to appear
     canJump = False
+    blankScreenCounter = 0
     while not canJump and not inGameErrorMessagePresent and \
             not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
         canJump = 'space' in ocr_screenshot_region(
@@ -563,6 +564,7 @@ while True:
 
     # Look for "Spectate"-button
     spectateButtonPresent = False
+    blankScreenCounter = 0
     while not spectateButtonPresent and not inGameErrorMessagePresent and \
             not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
         spectateButtonPresent = 'spectate' in ocr_screenshot_region(
@@ -605,6 +607,7 @@ while True:
         continue
 
     # (Attempt to) Click spectate until the button is gone
+    blankScreenCounter = 0
     while spectateButtonPresent and not inGameErrorMessagePresent and \
             not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
         print_log('Clicking "Spectate"-button')
@@ -642,6 +645,7 @@ while True:
     leaveGameButtonPresent = False
     windowError = False
     iterationsOnPlayer = 0
+    blankScreenCounter = 0
     while not onInMemoriam and not leaveGameButtonPresent and \
             not inGameErrorMessagePresent and not blizzardErrorMessagePresent and \
             not windowError and blankScreenCounter < blankScreenLimit:
