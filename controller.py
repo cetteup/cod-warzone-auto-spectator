@@ -11,6 +11,8 @@ import win32con
 import win32gui
 from PIL import ImageOps
 
+from gameinstancestate import GameInstanceState
+
 SendInput = ctypes.windll.user32.SendInput
 
 # C struct redefinitions
@@ -308,6 +310,8 @@ parser.add_argument('--game-path', help='Path to game install folder',
                     type=str, default=r'C:\Program Files (x86)\Call of Duty Modern Warfare')
 parser.add_argument('--tesseract-path', help='Path to Tesseract install folder',
                     type=str, default=r'C:\Program Files\Tesseract-OCR')
+parser.add_argument('--blank-screen-limit', help='How many times a (mostly) blank/black screen can be detected before'
+                                                 'the game is restarted', type=int, default=5)
 args = parser.parse_args()
 
 # Init global vars/settings
@@ -340,9 +344,10 @@ if gameWindow is None:
     sys.exit("Failed to find/start game instance")
 
 # Spectate indefinitely
-restartRequired = False
+gameInstanceState = GameInstanceState()
+
 while True:
-    if restartRequired:
+    if gameInstanceState.error_restart_required():
         # If window still exists but is showing error message, close it
         try:
             # Close existing game instance
@@ -360,7 +365,7 @@ while True:
         if gameLaunched:
             print_log('Updating window details')
             gameWindow = find_window_by_title('Call of Duty®: Modern Warfare®')
-            restartRequired = False
+            gameInstanceState.set_error_restart_required(False)
         else:
             print_log('Failed to restart game, trying again in 60s')
             time.sleep(60)
@@ -373,7 +378,7 @@ while True:
     except Exception as e:
         print_log(str(e))
         print_log('Error in handling game window, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     try:
@@ -383,7 +388,7 @@ while True:
     except Exception as e:
         print_log(str(e))
         print_log('Error in handling game window')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # Initial check for error message
@@ -393,11 +398,11 @@ while True:
         continue
     elif blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1]):
         print_log('Blizzard error message present, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
     elif blank_screen_present(gameWindow['rect'][0], gameWindow['rect'][1]):
         print_log('Blank screen is present, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # Move mouse battle royal
@@ -418,17 +423,16 @@ while True:
     except Exception as e:
         print_log(str(e))
         print_log('Error in handling game window, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # Wait for pre-game to start
     inPreGame = False
     inGameErrorMessagePresent = False
     blizzardErrorMessagePresent = False
-    blankScreenCounter = 0
-    blankScreenLimit = 5
+    gameInstanceState.reset_error_blank_screen_count()
     while not inPreGame and not inGameErrorMessagePresent and \
-            not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
+            not blizzardErrorMessagePresent and gameInstanceState.get_error_blank_screen_count() < args.blank_screen_limit:
         # Check if we are in pre-game already
         ocrResult = ocr_screenshot_region(
             gameWindow['rect'][0] + 525,
@@ -448,7 +452,7 @@ while True:
         blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         if blank_screen_present(gameWindow['rect'][0], gameWindow['rect'][1]):
-            blankScreenCounter += 1
+            gameInstanceState.increase_error_blank_screen_count()
 
         time.sleep(8)
 
@@ -461,13 +465,13 @@ while True:
     # If blizzard error message is present, close game and start a new instance
     if blizzardErrorMessagePresent:
         print_log('Blizzard error message present, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # If blank screen limit has been reached, close game and start a new instance
-    if blankScreenCounter >= blankScreenLimit:
+    if gameInstanceState.get_error_blank_screen_count() >= args.blank_screen_limit:
         print_log('Blank screen limit reached, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     print_log('Entered pre-game without errors, awaiting game start')
@@ -481,16 +485,16 @@ while True:
     except Exception as e:
         print_log(str(e))
         print_log('Error in handling game window, exiting')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     print_log('Game could start any second, starting ocr attempts')
 
     # Wait for jump button indicator to appear
     canJump = False
-    blankScreenCounter = 0
+    gameInstanceState.reset_error_blank_screen_count()
     while not canJump and not inGameErrorMessagePresent and \
-            not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
+            not blizzardErrorMessagePresent and gameInstanceState.get_error_blank_screen_count() < args.blank_screen_limit:
         canJump = 'space' in ocr_screenshot_region(
             gameWindow['rect'][0] + 568,
             gameWindow['rect'][1] + 624,
@@ -507,7 +511,7 @@ while True:
         blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         if blank_screen_present(gameWindow['rect'][0], gameWindow['rect'][1]):
-            blankScreenCounter += 1
+            gameInstanceState.increase_error_blank_screen_count()
 
         time.sleep(2)
 
@@ -520,13 +524,13 @@ while True:
     # If blizzard error message is present, close game and start a new instance
     if blizzardErrorMessagePresent:
         print_log('Blizzard error message present, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # If blank screen limit has been reached, close game and start a new instance
-    if blankScreenCounter >= blankScreenLimit:
+    if gameInstanceState.get_error_blank_screen_count() >= args.blank_screen_limit:
         print_log('Blank screen limit reached, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     time.sleep(5)
@@ -562,14 +566,14 @@ while True:
     except Exception as e:
         print_log(str(e))
         print_log('Error in handling game window, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # Look for "Spectate"-button
     spectateButtonPresent = False
-    blankScreenCounter = 0
+    gameInstanceState.reset_error_blank_screen_count()
     while not spectateButtonPresent and not inGameErrorMessagePresent and \
-            not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
+            not blizzardErrorMessagePresent and gameInstanceState.get_error_blank_screen_count() < args.blank_screen_limit:
         spectateButtonPresent = 'spectate' in ocr_screenshot_region(
             gameWindow['rect'][0] + 974,
             gameWindow['rect'][1] + 479,
@@ -584,7 +588,7 @@ while True:
         blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         if blank_screen_present(gameWindow['rect'][0], gameWindow['rect'][1]):
-            blankScreenCounter += 1
+            gameInstanceState.increase_error_blank_screen_count()
 
         if not spectateButtonPresent:
             time.sleep(4)
@@ -598,19 +602,19 @@ while True:
     # If blizzard error message is present, close game and start a new instance
     if blizzardErrorMessagePresent:
         print_log('Blizzard error message present, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # If blank screen limit has been reached, close game and start a new instance
-    if blankScreenCounter >= blankScreenLimit:
+    if gameInstanceState.get_error_blank_screen_count() >= args.blank_screen_limit:
         print_log('Blank screen limit reached, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # (Attempt to) Click spectate until the button is gone
-    blankScreenCounter = 0
+    gameInstanceState.reset_error_blank_screen_count()
     while spectateButtonPresent and not inGameErrorMessagePresent and \
-            not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
+            not blizzardErrorMessagePresent and gameInstanceState.get_error_blank_screen_count() < args.blank_screen_limit:
         print_log('Clicking "Spectate"-button')
         mouse_move(gameWindow['rect'][0] + 1043, gameWindow['rect'][1] + 494)
         mouse_left_click()
@@ -629,7 +633,7 @@ while True:
         blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         if blank_screen_present(gameWindow['rect'][0], gameWindow['rect'][1]):
-            blankScreenCounter += 1
+            gameInstanceState.increase_error_blank_screen_count()
 
     # Toggle through players while game is running
     print_log('Entering player spectate rotation')
@@ -644,10 +648,10 @@ while True:
     leaveGameButtonPresent = False
     windowError = False
     iterationsOnPlayer = 0
-    blankScreenCounter = 0
+    gameInstanceState.reset_error_blank_screen_count()
     while not onInMemoriam and not leaveGameButtonPresent and \
             not inGameErrorMessagePresent and not blizzardErrorMessagePresent and \
-            not windowError and blankScreenCounter < blankScreenLimit:
+            not windowError and gameInstanceState.get_error_blank_screen_count() < args.blank_screen_limit:
         # Check if "In Memoriam" title is present
         onInMemoriam = 'in memo' in ocr_screenshot_region(
             gameWindow['rect'][0] + 138,
@@ -675,13 +679,13 @@ while True:
         blizzardErrorMessagePresent = blizzard_error_message_present(gameWindow['rect'][0], gameWindow['rect'][1])
 
         if blank_screen_present(gameWindow['rect'][0], gameWindow['rect'][1]):
-            blankScreenCounter += 1
+            gameInstanceState.increase_error_blank_screen_count()
 
         # Switch to next player if current player has reached iteration limit
         # and game is not over
         if iterationsOnPlayer >= 10 and not onInMemoriam and not leaveGameButtonPresent and \
                 not inGameErrorMessagePresent and not blizzardErrorMessagePresent \
-                and blankScreenCounter < blankScreenLimit:
+                and gameInstanceState.get_error_blank_screen_count() < args.blank_screen_limit:
             # Bring window back to front (to be sure, and to enable alt-tabbing between controller actions)
             try:
                 win32gui.ShowWindow(gameWindow['handle'], win32con.SW_SHOW)
@@ -711,19 +715,19 @@ while True:
     # If blizzard error message is present, close game and start a new instance
     if blizzardErrorMessagePresent:
         print_log('Blizzard error message present, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # If there was an error handling the game window, close game an start a new instance
     if windowError:
         print_log('Error in handling game window, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     # If blank screen limit has been reached, close game and start a new instance
-    if blankScreenCounter >= blankScreenLimit:
+    if gameInstanceState.get_error_blank_screen_count() >= args.blank_screen_limit:
         print_log('Blank screen limit reached, restarting game')
-        restartRequired = True
+        gameInstanceState.set_error_restart_required(True)
         continue
 
     if onInMemoriam:
