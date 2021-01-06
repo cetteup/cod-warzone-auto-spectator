@@ -77,7 +77,7 @@ def window_enumeration_handler(hwnd, top_windows):
     """Add window title, ID and rect to array."""
     top_windows.append({
         'handle': hwnd,
-        'title': win32gui.GetWindowText(hwnd),
+        'title': win32gui.GetWindowText(hwnd).replace('\u200b', ''),
         'rect': win32gui.GetWindowRect(hwnd),
     })
 
