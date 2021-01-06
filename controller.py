@@ -142,7 +142,7 @@ def ocr_screenshot_region(left: int, top: int, width: int, height: int, invert: 
         screenshot = ImageOps.invert(screenshot)
     if show:
         screenshot.show()
-    ocr_result = pytesseract.image_to_string(screenshot, config=config)
+    ocr_result = pytesseract.image_to_string(screenshot, config=config).strip(' \n\x0c')
     # print_log(f'OCR result: {ocr_result}')
     return ocr_result.lower()
 
