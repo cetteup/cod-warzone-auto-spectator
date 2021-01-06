@@ -265,10 +265,10 @@ def launch_game_instance(install_path: str) -> bool:
     game_title_present = False
     while not game_title_present and attempts < max_attempts:
         ocr_result = ocr_screenshot_region(
-            game_window['rect'][0] + 420,
-            game_window['rect'][1] + 102,
-            455,
-            106,
+            game_window['rect'][0] + 475,
+            game_window['rect'][1] + 222,
+            355,
+            84,
             True,
             False,
             r'--oem 3 --psm 8'
@@ -293,10 +293,10 @@ def launch_game_instance(install_path: str) -> bool:
 
     return 'warzone' in ocr_screenshot_region(
         game_window['rect'][0] + 64,
-        game_window['rect'][1] + 64,
+        game_window['rect'][1] + 58,
         160,
-        30,
-        True,
+        38,
+        True
     )
 
 
@@ -489,7 +489,7 @@ while True:
     while not canJump and not inGameErrorMessagePresent and \
             not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
         canJump = 'space' in ocr_screenshot_region(
-            gameWindow['rect'][0] + 558,
+            gameWindow['rect'][0] + 568,
             gameWindow['rect'][1] + 624,
             40,
             15,
@@ -568,13 +568,11 @@ while True:
     while not spectateButtonPresent and not inGameErrorMessagePresent and \
             not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
         spectateButtonPresent = 'spectate' in ocr_screenshot_region(
-            gameWindow['rect'][0] + 994,
-            gameWindow['rect'][1] + 392,
+            gameWindow['rect'][0] + 974,
+            gameWindow['rect'][1] + 479,
             60,
-            16,
-            True,
-            False,
-            r'--oem 3 --psm 8'
+            35,
+            True
         )
         print_log(f'spectateButtonPresent: {spectateButtonPresent}')
 
@@ -611,17 +609,15 @@ while True:
     while spectateButtonPresent and not inGameErrorMessagePresent and \
             not blizzardErrorMessagePresent and blankScreenCounter < blankScreenLimit:
         print_log('Clicking "Spectate"-button')
-        mouse_move(gameWindow['rect'][0] + 1043, gameWindow['rect'][1] + 402)
+        mouse_move(gameWindow['rect'][0] + 1043, gameWindow['rect'][1] + 494)
         mouse_left_click()
 
         spectateButtonPresent = 'spectate' in ocr_screenshot_region(
-            gameWindow['rect'][0] + 994,
-            gameWindow['rect'][1] + 392,
+            gameWindow['rect'][0] + 974,
+            gameWindow['rect'][1] + 479,
             60,
-            16,
-            True,
-            False,
-            r'--oem 3 --psm 8'
+            35,
+            True
         )
         print_log(f'spectateButtonPresent: {spectateButtonPresent}')
 
@@ -735,7 +731,7 @@ while True:
 
         # Click "Leave game"-button
         print_log('Clicking "Leave game"-button')
-        mouse_move(gameWindow['rect'][0] + 150, gameWindow['rect'][1] + 286)
+        mouse_move(gameWindow['rect'][0] + 150, gameWindow['rect'][1] + 312)
         mouse_left_click()
         time.sleep(1)
 
